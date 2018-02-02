@@ -1,0 +1,55 @@
+---
+# tasks file for mariadb_backup
+
+- name: Install python-mysql for ansible
+  package:
+    name: MySQL-python
+    state: installed
+
+- name: Create system user for MariaDB backups
+  user:
+    name: "{{ mariadb_backup_system_user }}"
+    home: /home/{{ mariadb_backup_system_user }}
+    comment: MariaDB Backup user
+    shell: /bin/bash
+    state: present
+    system: yes
+  when: mariadb_backup_create_system_user
+
+- name: Create .my.cnf
+  template:
+    src: templates/my.cnf.j2
+    dest: /home/{{ mariadb_backup_system_user }}/.my.cnf
+    owner: "{{ mariadb_backup_system_user }}"
+    group: "{{ mariadb_backup_system_group }}"
+    mode: 0600
+  no_log: true
+
+- name: Create backup directory
+  file:
+    path:  "{{ mariadb_backup_dir }}"
+    owner: "{{ mariadb_backup_system_user }}"
+    group: "{{ mariadb_backup_system_group }}"
+    mode:  "{{ mariadb_backup_permission }}"
+    state: directory
+
+- name: Create cronjob for mysqldump
+  cron:
+    minute: "{{ item.minute }}"
+    hour: "{{ item.hour }}"
+    day: "{{ item.day }}"
+    name: "Backup MariaDB database {{ item.database }}"
+    cron_file: "{{ mariadb_backup_cron_file }}"
+    user: "{{ mariadb_backup_system_user }}"
+    job: '{{ mariadb_backup_mysqldump_path }} {{ item.mysqldump_options}} {{ item.database }} | gzip > {{ mariadb_backup_dir }}/{{ item.database }}_$(date +"%y%m%d").sql.gz'
+  with_items:
+    - "{{ mariadb_backup_cron_entries }}"
+
+- name: Create cronjob for removing old backups
+  cron:
+    name: Remove old backup files
+    minute: 0
+    hour: 23
+    cron_file: "{{ mariadb_backup_cron_file }}"
+    user: "{{ mariadb_backup_system_user }}"
+    job: 'find {{ mariadb_backup_dir }} -ctime +{{ mariadb_backup_days_to_keep }} -name "*.sql.gz" -exec rm {} \;'

@@ -1,0 +1,11 @@
+{{ ansible_managed | comment('plain', prefix='#################################', postfix='#################################') }}
+
+[mysqldump]
+user={{ mariadb_backup_mysqldump_user }}
+password={{ mariadb_backup_mysqldump_password }}
+default-character-set=utf8
+
+[client]
+user={{ mariadb_backup_mysqldump_user }}
+password={{ mariadb_backup_mysqldump_password }}
+default-character-set=utf8

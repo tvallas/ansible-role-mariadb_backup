@@ -1,0 +1,14 @@
+---
+# defaults file for mariadb_backup
+
+mariadb_backup_dir: /opt/mysql_backup
+mariadb_backup_mysqldump_path: /usr/bin/mysqldump
+mariadb_backup_create_system_user: true
+mariadb_backup_system_user: mysql_backup
+mariadb_backup_system_group: mysql
+mariadb_backup_cron_file: mysql_backup
+mariadb_backup_mysqldump_user: mysql_backup
+mariadb_backup_mysqldump_password: ""
+mariadb_backup_permission: 0700
+mariadb_backup_cron_entries: []
+mariadb_backup_days_to_keep: 10

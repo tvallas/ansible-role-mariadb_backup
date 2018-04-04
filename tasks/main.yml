@@ -41,7 +41,7 @@
     name: "Backup MariaDB database {{ item.database }}"
     cron_file: "{{ mariadb_backup_cron_file }}"
     user: "{{ mariadb_backup_system_user }}"
-    job: '{{ mariadb_backup_mysqldump_path }} {{ item.mysqldump_options}} {{ item.database }} | gzip > {{ mariadb_backup_dir }}/{{ item.database }}_$(date +"%y%m%d").sql.gz'
+    job: '{{ mariadb_backup_mysqldump_path }} {{ item.mysqldump_options}} {{ item.database }} | gzip > {{ mariadb_backup_dir }}/{{ item.database }}_$(date +"\%y\%m\%d").sql.gz'
   with_items:
     - "{{ mariadb_backup_cron_entries }}"
 
